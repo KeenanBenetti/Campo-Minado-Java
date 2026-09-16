@@ -1,5 +1,9 @@
 import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.scene.control.Label;
 
 public class Main extends Application {
 
@@ -36,6 +40,40 @@ public class Main extends Application {
             //botão de voltar ao menu em meio a partida
             //primeiro clique num local do tabuleiro abre 3 opções, pá, fechar e bandeira.
             //efeitos sonoros para cada ação no tabuleiro
+
+
+
+        //implementação:
+
+
+        //criar as dificuldades:
+
+        Dificuldade[] dificuldades = {
+                new Dificuldade("Fácil", 9, 10),
+                new Dificuldade("Médio", 16, 40),
+                new Dificuldade("Dificil", 24, 115)
+        };
+
+        //Criar menu e conectar com as dificuldades e criação do tabuleiro
+
+        Stage telaDoPrograma = new Stage();
+        Label tituloInicio = new Label("Campo Minado");
+        //tituloInicio.setStyle(font-size:30px);
+        Label tituloMenu = new Label("Escolha a dificuldade:");
+        //tituloMenu.setStyle(font-size:20px);
+        Button[] botoesDificuldade = new Button[dificuldades.length];
+        for (int i = 0; i < dificuldades.length; i++) {
+            botoesDificuldade[i] = new Button(dificuldades[i].NomeDificuldade);
+        }
+
+        VBox coluna = new VBox(tituloMenu);
+        coluna.getChildren().addAll(botoesDificuldade);
+
+        VBox menu = new VBox(tituloInicio, coluna);
+        Scene telaMenu = new Scene(menu);
+        telaDoPrograma.setTitle("Campo Minado");
+        telaDoPrograma.setScene(telaMenu);
+        telaDoPrograma.show();
     }
 
     public static void main(String[] args) {
