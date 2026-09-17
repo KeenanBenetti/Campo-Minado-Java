@@ -221,17 +221,28 @@ public class Main extends Application {
             for (int k = L-1; k < L-1+3; k++) {
                 for (int l = C-1; l < C-1+3; l++) {
                     if(indiceExiste(k, l, tabelaVisivel)){
-                        if(((Celula) botao.getUserData()).NumBomProx ==0){
-                            int[] atual = {k, l};
-                            boolean jaFoi = false;
-                            for (int[] item : posicoesConectadasVazias) {
-                                if (Arrays.equals(item, atual)) {
-                                    jaFoi = true;
-                                }
+                        Button botaoVizinho = tabelaVisivel[k][l];
+                        Celula celulaVizinha = (Celula) botaoVizinho.getUserData();
+
+                        int[] atual = {k, l};
+                        boolean jaFoi = false;
+
+                        for (int[] item : posicoesConectadasVazias) {
+                            if (Arrays.equals(item, atual)) {
+                                jaFoi = true;
                             }
-                            if(!jaFoi) {
-                                posicoesConectadasVazias.add(new int[]{k, l});
+                        }
+
+                        if(!jaFoi) {
+                            if(celulaVizinha.NumBomProx == 0) {
                                 revelar(tabelaVisivel, k, l, posicoesConectadasVazias);
+                            } else {
+                                String imagem = String.valueOf(celulaVizinha.NumBomProx);
+                                botaoVizinho.setStyle(
+                                        "-fx-background-image: url('/"+ imagem +".png');" +
+                                                "-fx-background-size: cover;" +
+                                                "-fx-background-position: center;"
+                                );
                             }
                         }
                     }
