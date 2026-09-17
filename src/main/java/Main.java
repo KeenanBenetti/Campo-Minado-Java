@@ -10,6 +10,8 @@ import javafx.stage.Stage;
 import javafx.scene.control.Label;
 import javafx.util.Duration;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
 public class Main extends Application {
@@ -113,6 +115,11 @@ public class Main extends Application {
             for (int j = 0; j < dificuldade.Tamanho; j++) {
                 tabelaVisivel[i][j] = new Button();
                 tabelaVisivel[i][j].setPrefSize(40,40);
+                tabelaVisivel[i][j].setStyle(
+                        "-fx-background-image: url('/Campo.png');" +
+                                "-fx-background-size: cover;" +
+                                "-fx-background-position: center;"
+                );
                 tabelaVisivel[i][j].setUserData(tabuleiro.TabuleiroLogico[i][j]);
 
                 int FinalI = i;
@@ -123,15 +130,14 @@ public class Main extends Application {
                             //trocarBomba(tabelaVisivel[FinalI][FinalJ]);
                         } else{
                             calcularNum(tabelaVisivel);
-                            //agruparVazios(tabelaVisivel);
-                            revelar(tabelaVisivel[FinalI][FinalJ]);
+                            revelar(tabelaVisivel, FinalI, FinalJ);
                         }
                     } else{
                         if(checkarBomba(tabelaVisivel[FinalI][FinalJ])){
-                            revelar(tabelaVisivel[FinalI][FinalJ]);
+                            revelar(tabelaVisivel, FinalI, FinalJ);
                             //new PauseTransition(Duration.seconds(3)).setOnFinished(e -> derrota());
                         } else {
-                            revelar(tabelaVisivel[FinalI][FinalJ]);
+                            revelar(tabelaVisivel, FinalI, FinalJ);
                         }
 
                     }
@@ -197,16 +203,64 @@ public class Main extends Application {
         return true;
     }
 
-    static void revelar(Button botao){
+    static void revelar(Button[][] tabelaVisivel, int i, int j, ArrayList<int[]> posicoesConectadasVazias){
+        Button botao = tabelaVisivel[i][j];
         Celula celula = (Celula) botao.getUserData();
         int numBombProx = celula.NumBomProx;
-        String imagem = String.valueOf(numBombProx);
-        botao.setStyle(
-                "-fx-background-image: url('/"+ imagem +".png');" +
+        if (numBombProx == 0){
+            //buscar os vizinhos dele, e se algum for zero, colocar num array de L, C.
+            //Se achar um vizinho zero, fazer o mesmo com ele, verificando pelo array pra deduplicar.
+            //[L-1, C-1][L-1, C][L-1, C+1]
+            //[L, C-1][L, C][L, C+1]
+            //[L+1, C-1][L+1, C][L+1, C+1]
+            int L = i;
+            int C = j;
+
+            posicoesConectadasVazias.add(new int[]{L,C});
+
+            for (int k = L-1; k < L-1+3; k++) {
+                for (int l = C-1; l < C-1+3; l++) {
+                    if(indiceExiste(k, l, tabelaVisivel)){
+                        if(((Celula) botao.getUserData()).NumBomProx ==0){
+                            int[] atual = {k, l};
+                            boolean jaFoi = false;
+                            for (int[] item : posicoesConectadasVazias) {
+                                if (Arrays.equals(item, atual)) {
+                                    jaFoi = true;
+                                }
+                            }
+                            if(!jaFoi) {
+                                posicoesConectadasVazias.add(new int[]{k, l});
+                                revelar(tabelaVisivel, k, l, posicoesConectadasVazias);
+                            }
+                        }
+                    }
+                }
+            }
+
+            for (int[] item : posicoesConectadasVazias) {
+                tabelaVisivel[item[0]][item[1]].setStyle(
+                        "-fx-background-image: url('/CampoUsado.png');" +
                         "-fx-background-size: cover;" +
                         "-fx-background-position: center;"
-        );
+                );
+            }
+
+        } else {
+            String imagem = String.valueOf(numBombProx);
+            botao.setStyle(
+                    "-fx-background-image: url('/"+ imagem +".png');" +
+                            "-fx-background-size: cover;" +
+                            "-fx-background-position: center;"
+            );
+        }
     }
+
+    static void revelar(Button[][] tabelaVisivel, int i, int j){
+        ArrayList<int[]> posicoesConectadasVazias = new ArrayList<>();
+        revelar(tabelaVisivel, i, j, posicoesConectadasVazias);
+    }
+
 
     public static void main(String[] args) {
         launch(args);
