@@ -125,19 +125,22 @@ public class Main extends Application {
                 int FinalI = i;
                 int FinalJ = j;
                 tabelaVisivel[i][j].setOnAction(e -> {
-                    if(tabuleiro.IsFirstClick){
+                    if(tabuleiro.isFirstClick()){
                         if(checkarBomba(tabelaVisivel[FinalI][FinalJ])){
                             //trocarBomba(tabelaVisivel[FinalI][FinalJ]);
+
                         } else{
                             calcularNum(tabelaVisivel);
                             revelar(tabelaVisivel, FinalI, FinalJ);
+                            tabuleiro.setFirstClick(false);
                         }
                     } else{
                         if(checkarBomba(tabelaVisivel[FinalI][FinalJ])){
-                            revelar(tabelaVisivel, FinalI, FinalJ);
+                            revelarBombas(tabelaVisivel);
                             //new PauseTransition(Duration.seconds(3)).setOnFinished(e -> derrota());
                         } else {
                             revelar(tabelaVisivel, FinalI, FinalJ);
+                            checkarVitoria(tabelaVisivel);
                         }
 
                     }
@@ -243,6 +246,7 @@ public class Main extends Application {
                                                 "-fx-background-size: cover;" +
                                                 "-fx-background-position: center;"
                                 );
+                                celulaVizinha.setTipo("CampoUsado");
                             }
                         }
                     }
@@ -255,6 +259,7 @@ public class Main extends Application {
                         "-fx-background-size: cover;" +
                         "-fx-background-position: center;"
                 );
+                ((Celula) tabelaVisivel[item[0]][item[1]].getUserData()).setTipo("CampoUsado");
             }
 
         } else {
@@ -264,6 +269,7 @@ public class Main extends Application {
                             "-fx-background-size: cover;" +
                             "-fx-background-position: center;"
             );
+            celula.setTipo("CampoUsado");
         }
     }
 
@@ -272,6 +278,33 @@ public class Main extends Application {
         revelar(tabelaVisivel, i, j, posicoesConectadasVazias);
     }
 
+    static void revelarBombas(Button[][] tabelaVisivel){
+        for (int i = 0; i < tabelaVisivel.length; i++) {
+            for (int j = 0; j < tabelaVisivel[i].length; j++) {
+                if(((Celula)tabelaVisivel[i][j].getUserData()).Tipo.equals("Bomba")){
+                    tabelaVisivel[i][j].setStyle(
+                            "-fx-background-image: url('/Bomba.png');" +
+                                    "-fx-background-size: cover;" +
+                                    "-fx-background-position: center;"
+                    );
+                }
+            }
+        }
+    }
+
+    static void checkarVitoria(Button[][] tabelaVisivel){
+        boolean vitoria = true;
+        for (int i = 0; i < tabelaVisivel.length; i++) {
+            for (int j = 0; j < tabelaVisivel[i].length; j++) {
+                if (((Celula) tabelaVisivel[i][j].getUserData()).Tipo.equals("Campo")){
+                    vitoria = false;
+                }
+            }
+        }
+        if(vitoria){
+            revelarBombas(tabelaVisivel);
+        }
+    }
 
     public static void main(String[] args) {
         launch(args);

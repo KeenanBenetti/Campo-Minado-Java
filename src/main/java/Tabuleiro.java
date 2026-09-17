@@ -20,4 +20,12 @@ public class Tabuleiro {
 
         return tabuleiroLogico;
     }
+
+    public void setFirstClick(boolean firstClick) {
+        IsFirstClick = firstClick;
+    }
+
+    public boolean isFirstClick() {
+        return IsFirstClick;
+    }
 }
