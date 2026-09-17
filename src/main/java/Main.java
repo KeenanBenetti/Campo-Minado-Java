@@ -1,11 +1,20 @@
+import javafx.animation.PauseTransition;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.RadioMenuItem;
+import javafx.scene.control.TableView;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.scene.control.Label;
+import javafx.util.Duration;
+
+import java.util.Random;
 
 public class Main extends Application {
+
+    public static Stage telaDoPrograma = new Stage();
 
     @Override
     public void start(Stage primaryStage) {
@@ -56,7 +65,7 @@ public class Main extends Application {
 
         //Criar menu e conectar com as dificuldades e criação do tabuleiro
 
-        Stage telaDoPrograma = new Stage();
+
         Label tituloInicio = new Label("Campo Minado");
         //tituloInicio.setStyle(font-size:30px);
         Label tituloMenu = new Label("Escolha a dificuldade:");
@@ -64,16 +73,139 @@ public class Main extends Application {
         Button[] botoesDificuldade = new Button[dificuldades.length];
         for (int i = 0; i < dificuldades.length; i++) {
             botoesDificuldade[i] = new Button(dificuldades[i].NomeDificuldade);
+            int FinalI = i;
+            botoesDificuldade[i].setOnAction(e -> comecarJogo(dificuldades[FinalI]));
         }
 
         VBox coluna = new VBox(tituloMenu);
         coluna.getChildren().addAll(botoesDificuldade);
 
         VBox menu = new VBox(tituloInicio, coluna);
-        Scene telaMenu = new Scene(menu);
+        Scene telaMenu = new Scene(menu, 600, 800);
         telaDoPrograma.setTitle("Campo Minado");
         telaDoPrograma.setScene(telaMenu);
         telaDoPrograma.show();
+    }
+
+    static void comecarJogo(Dificuldade dificuldade){
+        Tabuleiro tabuleiro = new Tabuleiro(dificuldade);
+
+        Random random = new Random();
+
+        int numBombasPlaced = 0;
+        int coluna = 0;
+        int linha = 0;
+        while (numBombasPlaced != dificuldade.NumBombas){
+            coluna = random.nextInt(dificuldade.Tamanho);
+            linha = random.nextInt(dificuldade.Tamanho);
+
+            if(tabuleiro.TabuleiroLogico[linha][coluna].getTipo().equals("Campo")){
+                tabuleiro.TabuleiroLogico[linha][coluna].setTipo("Bomba");
+                numBombasPlaced+=1;
+            }
+
+        }
+
+        Button[][] tabelaVisivel = new Button[dificuldade.Tamanho][dificuldade.Tamanho];
+        GridPane grid = new GridPane();
+
+        for (int i = 0; i < dificuldade.Tamanho; i++) {
+            for (int j = 0; j < dificuldade.Tamanho; j++) {
+                tabelaVisivel[i][j] = new Button();
+                tabelaVisivel[i][j].setPrefSize(40,40);
+                tabelaVisivel[i][j].setUserData(tabuleiro.TabuleiroLogico[i][j]);
+
+                int FinalI = i;
+                int FinalJ = j;
+                tabelaVisivel[i][j].setOnAction(e -> {
+                    if(tabuleiro.IsFirstClick){
+                        if(checkarBomba(tabelaVisivel[FinalI][FinalJ])){
+                            //trocarBomba(tabelaVisivel[FinalI][FinalJ]);
+                        } else{
+                            calcularNum(tabelaVisivel);
+                            //agruparVazios(tabelaVisivel);
+                            revelar(tabelaVisivel[FinalI][FinalJ]);
+                        }
+                    } else{
+                        if(checkarBomba(tabelaVisivel[FinalI][FinalJ])){
+                            revelar(tabelaVisivel[FinalI][FinalJ]);
+                            //new PauseTransition(Duration.seconds(3)).setOnFinished(e -> derrota());
+                        } else {
+                            revelar(tabelaVisivel[FinalI][FinalJ]);
+                        }
+
+                    }
+                });
+                grid.add(tabelaVisivel[i][j], i, j);
+            }
+        }
+
+
+        Scene tabuleiroVisual = new Scene(grid, 600, 800);
+        telaDoPrograma.setScene(tabuleiroVisual);
+    }
+
+    static boolean checkarBomba(Button botao){
+        Celula celula = (Celula) botao.getUserData();
+        if (celula.getTipo().equals("Bomba")){
+            return true;
+        } else{
+            return false;
+        }
+    }
+
+    static void calcularNum(Button[][] tabuleiroVisual ){
+        for (int i = 0; i < tabuleiroVisual.length; i++) {
+            for (int j = 0; j < tabuleiroVisual.length; j++) {
+                //iteração de cada botão
+
+                Button botao = tabuleiroVisual[i][j];
+                Celula celula = (Celula) botao.getUserData();
+
+                //apenas se for campo
+                if (celula.getTipo().equals("Campo")){
+                    int L = i;
+                    int C = j;
+                    int bombasAoRedor = 0;
+                    // [L-1, C-1] [L-1, C] [L-1, C+1]
+                    // [L, C-1] [L,C] [L, C+1]
+                    // [L+1, C-1] [L+1, C] [L+1, C+1]
+
+                    for (int k = L-1; k < L-1+3; k++) {
+                        for (int l = C-1; l < C-1+3; l++) {
+                            if(indiceExiste(k, l, tabuleiroVisual)){
+                                Button botaoTeste = tabuleiroVisual[k][l];
+                                if (((Celula)(botaoTeste.getUserData())).getTipo().equals("Bomba")){
+                                    bombasAoRedor+=1;
+                                }
+                            }
+                        }
+                    }
+
+                    celula.setNumBomProx(bombasAoRedor);
+                }
+            }
+        }
+    }
+
+    static boolean indiceExiste(int L, int C, Button[][] tabuleiroVisual){
+        if (L > tabuleiroVisual.length-1|| L<0){
+            return false;
+        } else if (C > tabuleiroVisual[0].length-1 || C < 0) {
+            return false;
+        }
+        return true;
+    }
+
+    static void revelar(Button botao){
+        Celula celula = (Celula) botao.getUserData();
+        int numBombProx = celula.NumBomProx;
+        String imagem = String.valueOf(numBombProx);
+        botao.setStyle(
+                "-fx-background-image: url('/"+ imagem +".png');" +
+                        "-fx-background-size: cover;" +
+                        "-fx-background-position: center;"
+        );
     }
 
     public static void main(String[] args) {
