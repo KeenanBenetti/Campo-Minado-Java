@@ -1,10 +1,13 @@
 import javafx.animation.PauseTransition;
 import javafx.application.Application;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.scene.control.Label;
@@ -69,9 +72,11 @@ public class Main extends Application {
 
 
         Label tituloInicio = new Label("Campo Minado");
-        //tituloInicio.setStyle(font-size:30px);
+        tituloInicio.setStyle("-fx-font-size:30px");
+
         Label tituloMenu = new Label("Escolha a dificuldade:");
-        //tituloMenu.setStyle(font-size:20px);
+        tituloMenu.setStyle("-fx-font-size:20px");
+
         Button[] botoesDificuldade = new Button[dificuldades.length];
         for (int i = 0; i < dificuldades.length; i++) {
             botoesDificuldade[i] = new Button(dificuldades[i].NomeDificuldade);
@@ -79,11 +84,19 @@ public class Main extends Application {
             botoesDificuldade[i].setOnAction(e -> comecarJogo(dificuldades[FinalI]));
         }
 
-        VBox coluna = new VBox(tituloMenu);
-        coluna.getChildren().addAll(botoesDificuldade);
+        HBox linha = new HBox();
+        linha.setSpacing(20);
+        linha.getChildren().addAll(botoesDificuldade);
+        linha.setAlignment(Pos.CENTER);
 
-        VBox menu = new VBox(tituloInicio, coluna);
-        telaMenu = new Scene(menu, 600, 800);
+        VBox menu = new VBox(tituloInicio, tituloMenu, linha);
+        menu.setAlignment(Pos.CENTER);
+
+        StackPane raiz = new StackPane();
+        raiz.getChildren().add(menu);
+
+        telaMenu = new Scene(raiz, 600, 800);
+
         telaDoPrograma.setTitle("Campo Minado");
         telaDoPrograma.setScene(telaMenu);
         telaDoPrograma.show();
