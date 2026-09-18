@@ -127,8 +127,8 @@ public class Main extends Application {
                 tabelaVisivel[i][j].setOnAction(e -> {
                     if(tabuleiro.isFirstClick()){
                         if(checkarBomba(tabelaVisivel[FinalI][FinalJ])){
-                            //trocarBomba(tabelaVisivel[FinalI][FinalJ]);
-
+                            trocarBomba(tabelaVisivel, FinalI, FinalJ);
+                            revelar(tabelaVisivel, FinalI, FinalJ);
                         } else{
                             calcularNum(tabelaVisivel);
                             revelar(tabelaVisivel, FinalI, FinalJ);
@@ -304,6 +304,25 @@ public class Main extends Application {
         if(vitoria){
             revelarBombas(tabelaVisivel);
         }
+    }
+
+    static void trocarBomba(Button[][] tabelaVisivel, int i, int j){
+        Random random = new Random();
+        ((Celula) tabelaVisivel[i][j].getUserData()).setTipo("Campo");
+
+        boolean done = false;
+
+        while (!done){
+            int L = random.nextInt(tabelaVisivel.length);
+            int C = random.nextInt(tabelaVisivel[L].length);
+            Celula celula = (Celula) tabelaVisivel[i][j].getUserData();
+
+            if (celula.getTipo().equals("Campo")
+                    && (L != i || C != j)){
+                celula.setTipo("Bomba");
+            }
+        }
+
     }
 
     public static void main(String[] args) {
