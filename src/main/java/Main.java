@@ -103,6 +103,7 @@ public class Main extends Application {
     }
 
     static Scene telaMenu;
+    static Scene telaVitoria;
 
     static void comecarJogo(Dificuldade dificuldade){
         Tabuleiro tabuleiro = new Tabuleiro(dificuldade);
@@ -322,6 +323,11 @@ public class Main extends Application {
         }
         if(vitoria){
             revelarBombas(tabelaVisivel);
+            PauseTransition pausa = new PauseTransition(Duration.seconds(3));
+            pausa.setOnFinished(e -> {
+                vitoria();
+            });
+            pausa.play();
         }
     }
 
@@ -339,9 +345,32 @@ public class Main extends Application {
             if (celula.getTipo().equals("Campo")
                     && (L != i || C != j)){
                 celula.setTipo("Bomba");
+                done = true;
             }
         }
 
+    }
+
+    static void vitoria(){
+
+        Label titulo = new Label("Parabêns, Você venceu!");
+        Label texto = new Label("Deseja jogar novamente?");
+        Button sim = new Button("Sim");
+        sim.setOnAction(e -> {
+            telaDoPrograma.setScene(telaMenu);
+        });
+        Button nao = new Button("Não");
+        nao.setOnAction(e -> {
+            System.exit(0);
+        });
+        HBox botoes = new HBox(sim, nao);
+        botoes.setAlignment(Pos.CENTER);
+        botoes.setSpacing(20);
+        VBox pilha = new VBox(titulo, texto, botoes);
+        pilha.setAlignment(Pos.CENTER);
+        StackPane raiz = new StackPane(pilha);
+        telaVitoria = new Scene(raiz, 600, 800);
+        telaDoPrograma.setScene(telaVitoria);
     }
 
     public static void main(String[] args) {
