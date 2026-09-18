@@ -83,11 +83,13 @@ public class Main extends Application {
         coluna.getChildren().addAll(botoesDificuldade);
 
         VBox menu = new VBox(tituloInicio, coluna);
-        Scene telaMenu = new Scene(menu, 600, 800);
+        telaMenu = new Scene(menu, 600, 800);
         telaDoPrograma.setTitle("Campo Minado");
         telaDoPrograma.setScene(telaMenu);
         telaDoPrograma.show();
     }
+
+    static Scene telaMenu;
 
     static void comecarJogo(Dificuldade dificuldade){
         Tabuleiro tabuleiro = new Tabuleiro(dificuldade);
@@ -137,7 +139,11 @@ public class Main extends Application {
                     } else{
                         if(checkarBomba(tabelaVisivel[FinalI][FinalJ])){
                             revelarBombas(tabelaVisivel);
-                            //new PauseTransition(Duration.seconds(3)).setOnFinished(e -> derrota());
+                            PauseTransition pausa = new PauseTransition(Duration.seconds(3));
+                            pausa.setOnFinished(eee -> {
+                                telaDoPrograma.setScene(telaMenu);
+                            });
+                            pausa.play();
                         } else {
                             revelar(tabelaVisivel, FinalI, FinalJ);
                             checkarVitoria(tabelaVisivel);
